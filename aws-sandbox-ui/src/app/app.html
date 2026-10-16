@@ -1,0 +1,75 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<mat-sidenav-container class="app-shell">
+  <mat-sidenav
+    #navigation
+    id="primary-navigation"
+    class="app-sidenav"
+    [mode]="isHandset() ? 'over' : 'side'"
+    [opened]="navigationOpen()"
+    (closedStart)="navigationOpen.set(false)"
+    aria-label="Primary navigation"
+  >
+    <a class="brand" routerLink="/" (click)="closeNavigation()" aria-label="AWS Sandbox home">
+      <span class="brand-mark" aria-hidden="true">
+        <mat-icon>cloud</mat-icon>
+      </span>
+      <span class="brand-copy">
+        <span class="brand-name">AWS Sandbox</span>
+        <span class="brand-caption">Developer workspace</span>
+      </span>
+    </a>
+
+    <div class="navigation-heading">Workspace</div>
+    <mat-nav-list aria-label="Workspace">
+      <a
+        mat-list-item
+        routerLink="/"
+        routerLinkActive="active-navigation-link"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="closeNavigation()"
+      >
+        <mat-icon matListItemIcon aria-hidden="true">space_dashboard</mat-icon>
+        <span matListItemTitle>Overview</span>
+      </a>
+    </mat-nav-list>
+
+    <div class="sidenav-footer">
+      <mat-icon aria-hidden="true">code</mat-icon>
+      <span>Local development</span>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="app-toolbar">
+      <button
+        mat-icon-button
+        type="button"
+        class="navigation-toggle"
+        [attr.aria-label]="navigationToggleLabel()"
+        aria-controls="primary-navigation"
+        [attr.aria-expanded]="navigationOpen()"
+        (click)="toggleNavigation()"
+      >
+        <mat-icon aria-hidden="true">menu</mat-icon>
+      </button>
+
+      <span class="toolbar-title">Workspace</span>
+      <span class="toolbar-spacer"></span>
+      <button
+        mat-icon-button
+        type="button"
+        class="theme-toggle"
+        [matTooltip]="themeToggleLabel()"
+        [attr.aria-label]="themeToggleLabel()"
+        (click)="theme.toggleTheme()"
+      >
+        <mat-icon aria-hidden="true">{{ themeIcon() }}</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <main id="main-content" class="main-content" tabindex="-1">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

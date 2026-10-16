@@ -1,0 +1,72 @@
+:host {
+  display: block;
+  width: min(100%, 1100px);
+  margin-inline: auto;
+}
+
+.welcome {
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  color: var(--mat-sys-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin: 0 0 0.75rem;
+}
+
+h1 {
+  color: var(--mat-sys-on-surface);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.welcome-copy {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin: 1rem 0 0;
+  max-width: 680px;
+}
+
+.workspace-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.information-card {
+  background: var(--mat-sys-surface-container-low);
+  border-color: var(--mat-sys-outline-variant);
+  border-radius: 1rem;
+  color: var(--mat-sys-on-surface);
+}
+
+.card-icon {
+  align-items: center;
+  background: var(--mat-sys-secondary-container);
+  border-radius: 0.75rem;
+  color: var(--mat-sys-on-secondary-container);
+  display: flex;
+  justify-content: center;
+}
+
+.information-card mat-card-content {
+  color: var(--mat-sys-on-surface-variant);
+  line-height: 1.6;
+  padding-top: 0.75rem;
+}
+
+.information-card p {
+  margin: 0;
+}
+
+@media (max-width: 650px) {
+  .workspace-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
