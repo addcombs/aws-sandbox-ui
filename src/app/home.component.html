@@ -30,13 +30,46 @@
         <mat-icon aria-hidden="true">integration_instructions</mat-icon>
       </span>
       <mat-card-title>API integration</mat-card-title>
-      <mat-card-subtitle>Connect when backend contracts are available</mat-card-subtitle>
+      <mat-card-subtitle>Read-only connectivity check</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <p>
-        No API calls are made yet. Add frontend data flows against the Spring Boot API's documented
-        endpoints when they are defined.
+      <p class="api-check-description">
+        This calls <code>GET /api/health</code> and does not read or change user data. Use an HTTPS
+        API origin when this site is deployed.
       </p>
+      <mat-form-field appearance="outline" class="api-origin-field">
+        <mat-label>API origin</mat-label>
+        <input
+          #apiOriginInput
+          matInput
+          type="url"
+          autocomplete="url"
+          placeholder="https://your-api.example.com"
+          [value]="apiOrigin()"
+          (input)="updateApiOrigin(apiOriginInput.value)"
+        />
+        <mat-hint>Origin only, with no path. Local development defaults to localhost:8080.</mat-hint>
+      </mat-form-field>
+      <button
+        mat-flat-button
+        type="button"
+        [disabled]="!isApiOriginValid() || connectionState() === 'checking'"
+        (click)="testApiConnection()"
+      >
+        <mat-icon aria-hidden="true">network_check</mat-icon>
+        {{ connectionState() === 'checking' ? 'Checking…' : 'Test connection' }}
+      </button>
+      <div
+        class="connection-status"
+        [class.connection-status--connected]="connectionState() === 'connected'"
+        [class.connection-status--error]="connectionState() === 'error'"
+        [class.connection-status--checking]="connectionState() === 'checking'"
+        role="status"
+        aria-live="polite"
+      >
+        <mat-icon aria-hidden="true">{{ connectionIcon() }}</mat-icon>
+        <span>{{ connectionMessage() }}</span>
+      </div>
     </mat-card-content>
   </mat-card>
 </section>

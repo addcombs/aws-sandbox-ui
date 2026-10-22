@@ -65,6 +65,45 @@ h1 {
   margin: 0;
 }
 
+.api-check-description {
+  margin-bottom: 1rem !important;
+}
+
+.api-origin-field {
+  display: block;
+  width: 100%;
+}
+
+.connection-status {
+  align-items: flex-start;
+  color: var(--mat-sys-on-surface-variant);
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.connection-status mat-icon {
+  flex: 0 0 auto;
+}
+
+.connection-status--connected {
+  color: var(--mat-sys-primary);
+}
+
+.connection-status--error {
+  color: var(--mat-sys-error);
+}
+
+.connection-status--checking mat-icon {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 650px) {
   .workspace-grid {
     grid-template-columns: minmax(0, 1fr);
