@@ -1,15 +1,31 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { AuthService } from './auth/auth.service';
 import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {
   let httpTestingController: HttpTestingController;
+  let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
+    authService = jasmine.createSpyObj<AuthService>('AuthService', [
+      'currentProfile',
+      'signIn',
+      'signOut',
+    ]);
+    authService.currentProfile.and.returnValue(of(null));
+    authService.signIn.and.returnValue(Promise.resolve());
+    authService.signOut.and.returnValue(Promise.resolve());
+
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: authService },
+      ],
     }).compileComponents();
     httpTestingController = TestBed.inject(HttpTestingController);
   });
@@ -22,7 +38,9 @@ describe('HomeComponent', () => {
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    const button = Array.from(
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>,
+    ).find((candidate) => candidate.textContent?.includes('Test connection')) as HTMLButtonElement;
     button.click();
 
     const request = httpTestingController.expectOne('http://localhost:8080/api/health');
@@ -43,7 +61,10 @@ describe('HomeComponent', () => {
     input.value = 'https://api.example.com/';
     input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
-    (fixture.nativeElement.querySelector('button') as HTMLButtonElement).click();
+    const testConnectionButton = Array.from(
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>,
+    ).find((button) => button.textContent?.includes('Test connection')) as HTMLButtonElement;
+    testConnectionButton.click();
 
     const request = httpTestingController.expectOne('https://api.example.com/api/health');
     expect(request.request.method).toBe('GET');
@@ -53,5 +74,19 @@ describe('HomeComponent', () => {
     expect(fixture.nativeElement.querySelector('.connection-status')?.textContent).toContain(
       'Connected to https://api.example.com.',
     );
+  });
+
+  it('starts Cognito managed sign-in from the account card', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+
+    const signInButton = Array.from(
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>,
+    ).find((button) => button.textContent?.includes('Sign in / sign up'));
+    expect(signInButton).toBeDefined();
+
+    signInButton?.click();
+
+    expect(authService.signIn).toHaveBeenCalled();
   });
 });

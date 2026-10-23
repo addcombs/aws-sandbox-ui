@@ -2,12 +2,42 @@
   <p class="eyebrow">DEVELOPER WORKSPACE</p>
   <h1 id="welcome-title">Welcome to your AWS Sandbox</h1>
   <p class="welcome-copy">
-    A clean starting point for your cloud development workflow. The frontend is ready to connect
-    to the API as its capabilities are added.
+    Sign in with Cognito to provision your profile and connect securely to the API.
   </p>
 </section>
 
 <section class="workspace-grid" aria-label="Workspace information">
+  <mat-card appearance="outlined" class="information-card">
+    <mat-card-header>
+      <span mat-card-avatar class="card-icon">
+        <mat-icon aria-hidden="true">account_circle</mat-icon>
+      </span>
+      <mat-card-title>Account</mat-card-title>
+      <mat-card-subtitle>Cognito managed sign-in</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      @if (authState() === 'checking' || authState() === 'signing-in') {
+        <p>{{ authState() === 'checking' ? 'Checking your sign-in session…' : 'Opening secure sign-in…' }}</p>
+      } @else if (profile(); as currentProfile) {
+        <p>
+          Signed in as
+          <strong>{{ currentProfile.firstName || currentProfile.lastName
+            ? (currentProfile.firstName || '') + ' ' + (currentProfile.lastName || '')
+            : currentProfile.emailAddress }}</strong>
+        </p>
+        <p>{{ currentProfile.emailAddress }}</p>
+        <button mat-flat-button type="button" (click)="signOut()">Sign out</button>
+      } @else if (authState() === 'signed-out') {
+        <p>Sign in or create an account. New users are verified by email.</p>
+        <button mat-flat-button type="button" (click)="signIn()">Sign in / sign up</button>
+      } @else {
+        <p class="auth-error" role="alert">{{ authMessage() }}</p>
+        <button mat-flat-button type="button" (click)="retryProfileLoad()">Retry</button>
+        <button mat-button type="button" (click)="signOut()">Sign out</button>
+      }
+    </mat-card-content>
+  </mat-card>
+
   <mat-card appearance="outlined" class="information-card">
     <mat-card-header>
       <span mat-card-avatar class="card-icon">

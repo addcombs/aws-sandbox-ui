@@ -94,6 +94,11 @@ h1 {
   color: var(--mat-sys-error);
 }
 
+.auth-error {
+  color: var(--mat-sys-error);
+  margin-bottom: 1rem !important;
+}
+
 .connection-status--checking mat-icon {
   animation: spin 1.5s linear infinite;
 }
