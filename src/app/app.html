@@ -66,6 +66,84 @@
       >
         <mat-icon aria-hidden="true">{{ themeIcon() }}</mat-icon>
       </button>
+      <div
+        class="profile-control"
+        (mouseenter)="openAccountPopover()"
+        (mouseleave)="closeAccountPopover()"
+        (focusin)="openAccountPopover()"
+        (focusout)="closeAccountPopoverOnFocusOut($event)"
+      >
+        <button
+          mat-icon-button
+          type="button"
+          class="profile-toggle"
+          matTooltip="Account"
+          aria-label="Account"
+          aria-controls="account-details"
+          [attr.aria-expanded]="accountPopoverOpen()"
+          (click)="openAccountPopover()"
+        >
+          <mat-icon aria-hidden="true">account_circle</mat-icon>
+        </button>
+        @if (accountPopoverOpen()) {
+          <section id="account-details" class="profile-popover" aria-label="Account information">
+            <strong class="profile-popover-title">Account</strong>
+            @switch (accountState()) {
+              @case ('checking') {
+                <p role="status">Checking your sign-in status…</p>
+              }
+              @case ('signed-out') {
+                <p>Sign in or create an account to view your profile.</p>
+                <button
+                  mat-flat-button
+                  type="button"
+                  class="profile-action"
+                  (click)="signInFromAccount()"
+                >
+                  Sign in / sign up
+                </button>
+              }
+              @case ('signing-in') {
+                <p role="status">Opening secure sign-in…</p>
+              }
+              @case ('signed-in') {
+                <p class="profile-name">{{ accountDisplayName() }}</p>
+                <p class="profile-email">{{ accountProfile()?.emailAddress }}</p>
+                <button
+                  mat-button
+                  type="button"
+                  class="profile-action"
+                  (click)="signOutFromAccount()"
+                >
+                  Sign out
+                </button>
+              }
+              @case ('signing-out') {
+                <p role="status">Signing out…</p>
+              }
+              @case ('error') {
+                <p class="profile-error" role="alert">{{ accountErrorMessage() }}</p>
+                <button
+                  mat-flat-button
+                  type="button"
+                  class="profile-action"
+                  (click)="signInFromAccount()"
+                >
+                  Sign in / sign up
+                </button>
+                <button
+                  mat-button
+                  type="button"
+                  class="profile-action"
+                  (click)="retryAccountProfileLoad()"
+                >
+                  Retry
+                </button>
+              }
+            }
+          </section>
+        }
+      </div>
     </mat-toolbar>
 
     <main id="main-content" class="main-content" tabindex="-1">

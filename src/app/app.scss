@@ -116,6 +116,48 @@ mat-nav-list a.active-navigation-link {
   flex: 1;
 }
 
+.profile-control {
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+
+.profile-popover {
+  background: var(--mat-sys-surface-container-high);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 18%);
+  color: var(--mat-sys-on-surface);
+  padding: 1rem;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  width: min(19rem, calc(100vw - 2rem));
+  z-index: 1000;
+}
+
+.profile-popover p {
+  margin: 0.65rem 0;
+}
+
+.profile-popover-title,
+.profile-name {
+  font-weight: 600;
+}
+
+.profile-email {
+  color: var(--mat-sys-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.profile-error {
+  color: var(--mat-sys-error);
+}
+
+.profile-action {
+  margin-top: 0.25rem;
+}
+
 .main-content {
   background: var(--mat-sys-surface-container);
   box-sizing: border-box;
