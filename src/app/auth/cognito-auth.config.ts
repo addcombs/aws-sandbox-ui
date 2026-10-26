@@ -9,7 +9,6 @@ export const cognitoAuthConfig = {
   redirectUrls: [
     'https://acombs-dev.com/',
     'https://www.acombs-dev.com/',
-    'https://main.d89oebcblu3jd.amplifyapp.com/',
     'http://localhost:4200/',
   ],
 };

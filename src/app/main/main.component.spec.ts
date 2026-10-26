@@ -2,10 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { AuthService } from './auth/auth.service';
-import { HomeComponent } from './home.component';
+import { AuthService } from '../auth/auth.service';
+import { MainComponent } from './main.component';
 
-describe('HomeComponent', () => {
+describe('MainComponent', () => {
   let httpTestingController: HttpTestingController;
   let authService: jasmine.SpyObj<AuthService>;
 
@@ -20,7 +20,7 @@ describe('HomeComponent', () => {
     authService.signOut.and.returnValue(Promise.resolve());
 
     await TestBed.configureTestingModule({
-      imports: [HomeComponent],
+      imports: [MainComponent],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -35,7 +35,7 @@ describe('HomeComponent', () => {
   });
 
   it('checks the API health endpoint and displays a connected state', () => {
-    const fixture = TestBed.createComponent(HomeComponent);
+    const fixture = TestBed.createComponent(MainComponent);
     fixture.detectChanges();
 
     const button = Array.from(
@@ -54,7 +54,7 @@ describe('HomeComponent', () => {
   });
 
   it('uses the API origin entered in the form', () => {
-    const fixture = TestBed.createComponent(HomeComponent);
+    const fixture = TestBed.createComponent(MainComponent);
     fixture.detectChanges();
 
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
@@ -77,7 +77,7 @@ describe('HomeComponent', () => {
   });
 
   it('starts Cognito managed sign-in from the account card', () => {
-    const fixture = TestBed.createComponent(HomeComponent);
+    const fixture = TestBed.createComponent(MainComponent);
     fixture.detectChanges();
 
     const signInButton = Array.from(

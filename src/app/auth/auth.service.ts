@@ -2,15 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { fetchAuthSession, signInWithRedirect, signOut } from 'aws-amplify/auth';
 import { from, Observable, of, switchMap, timeout } from 'rxjs';
-
-export interface UserProfile {
-  id: number;
-  firstName: string | null;
-  lastName: string | null;
-  emailAddress: string;
-  createdDate: string;
-  updatedDate: string;
-}
+import type { UserProfile } from '../shared/models/user-profile';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

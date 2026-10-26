@@ -50,3 +50,17 @@ button,
 a {
   -webkit-tap-highlight-color: transparent;
 }
+
+.primary-color-swatch {
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: 50%;
+  display: inline-block;
+  height: 1rem;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  width: 1rem;
+}
+
+.secondary-color-swatch {
+  margin-right: 0.75rem;
+}

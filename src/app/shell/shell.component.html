@@ -59,6 +59,50 @@
       <button
         mat-icon-button
         type="button"
+        class="primary-color-toggle"
+        matTooltip="Choose primary color"
+        aria-label="Choose primary color"
+        [matMenuTriggerFor]="primaryColorMenu"
+      >
+        <mat-icon aria-hidden="true">palette</mat-icon>
+      </button>
+      <mat-menu #primaryColorMenu="matMenu" aria-label="Primary color">
+        @for (color of theme.primaryColors; track color.id) {
+          <button
+            mat-menu-item
+            type="button"
+            [attr.aria-label]="
+              'Primary ' +
+              color.name +
+              ' ' +
+              color.hex +
+              '; secondary ' +
+              color.secondaryName +
+              ' ' +
+              color.secondaryHex
+            "
+            (click)="theme.setPrimaryColor(color.id)"
+          >
+            <span
+              class="primary-color-swatch"
+              [style.background-color]="color.hex"
+              aria-hidden="true"
+            ></span>
+            <span
+              class="primary-color-swatch secondary-color-swatch"
+              [style.background-color]="color.secondaryHex"
+              aria-hidden="true"
+            ></span>
+            <span>{{ color.name }} · {{ color.secondaryName }}</span>
+            @if (theme.primaryColor() === color.id) {
+              <mat-icon aria-hidden="true">check</mat-icon>
+            }
+          </button>
+        }
+      </mat-menu>
+      <button
+        mat-icon-button
+        type="button"
         class="theme-toggle"
         [matTooltip]="themeToggleLabel()"
         [attr.aria-label]="themeToggleLabel()"

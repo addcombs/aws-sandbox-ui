@@ -1,18 +1,18 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DOCUMENT } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
-import { AuthService, UserProfile } from './auth/auth.service';
-import { ThemeService } from './theme.service';
+import { CurrentUserService } from '../shared/services/current-user.service';
+import { ThemeService } from '../theme.service';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +20,7 @@ import { ThemeService } from './theme.service';
     MatButtonModule,
     MatIconModule,
     MatListModule,
+    MatMenuModule,
     MatTooltipModule,
     MatSidenavModule,
     MatToolbarModule,
@@ -27,13 +28,13 @@ import { ThemeService } from './theme.service';
     RouterLinkActive,
     RouterOutlet,
   ],
-  templateUrl: './app.html',
-  styleUrl: './app.scss',
+  templateUrl: './shell.component.html',
+  styleUrl: './shell.component.scss',
 })
-export class App {
+export class ShellComponent implements OnInit {
   private readonly breakpointObserver = inject(BreakpointObserver);
-  private readonly authService = inject(AuthService);
   private readonly document = inject(DOCUMENT);
+  private readonly currentUser = inject(CurrentUserService);
   private readonly handsetQuery = '(max-width: 760px)';
 
   protected readonly theme = inject(ThemeService);
@@ -43,22 +44,10 @@ export class App {
   );
   protected readonly navigationOpen = signal(!this.isHandset());
   protected readonly accountPopoverOpen = signal(false);
-  protected readonly accountState = signal<
-    'idle' | 'checking' | 'signed-out' | 'signing-in' | 'signed-in' | 'signing-out' | 'error'
-  >('idle');
-  protected readonly accountProfile = signal<UserProfile | null>(null);
-  protected readonly accountErrorMessage = signal('');
-  protected readonly accountDisplayName = computed(() => {
-    const profile = this.accountProfile();
-    if (!profile) {
-      return '';
-    }
-
-    return (
-      [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim() ||
-      profile.emailAddress
-    );
-  });
+  protected readonly accountState = this.currentUser.status;
+  protected readonly accountProfile = this.currentUser.profile;
+  protected readonly accountErrorMessage = this.currentUser.errorMessage;
+  protected readonly accountDisplayName = this.currentUser.displayName;
   protected readonly themeIcon = computed(() =>
     this.theme.mode() === 'dark' ? 'light_mode' : 'dark_mode',
   );
@@ -68,6 +57,10 @@ export class App {
   protected readonly themeToggleLabel = computed(() =>
     this.theme.mode() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
   );
+
+  ngOnInit(): void {
+    this.currentUser.loadCurrentUser(this.getDefaultApiOrigin());
+  }
 
   protected toggleNavigation(): void {
     this.navigationOpen.update((open) => !open);
@@ -85,7 +78,7 @@ export class App {
     }
 
     this.accountPopoverOpen.set(true);
-    this.loadAccountProfile();
+    this.currentUser.loadCurrentUser(this.getDefaultApiOrigin());
   }
 
   protected closeAccountPopover(): void {
@@ -109,46 +102,15 @@ export class App {
   }
 
   protected signInFromAccount(): void {
-    this.accountState.set('signing-in');
-    this.accountErrorMessage.set('');
-    void this.authService.signIn().catch((error: unknown) => {
-      this.accountState.set('error');
-      this.accountErrorMessage.set(this.getAccountErrorMessage(error));
-    });
+    this.currentUser.signIn();
   }
 
   protected signOutFromAccount(): void {
-    this.accountState.set('signing-out');
-    this.accountErrorMessage.set('');
-    void this.authService
-      .signOut()
-      .then(() => {
-        this.accountProfile.set(null);
-        this.accountState.set('signed-out');
-      })
-      .catch((error: unknown) => {
-        this.accountState.set('error');
-        this.accountErrorMessage.set(this.getAccountErrorMessage(error));
-      });
+    this.currentUser.signOut();
   }
 
   protected retryAccountProfileLoad(): void {
-    this.loadAccountProfile();
-  }
-
-  private loadAccountProfile(): void {
-    this.accountState.set('checking');
-    this.accountErrorMessage.set('');
-    this.authService.currentProfile(this.getDefaultApiOrigin()).subscribe({
-      next: (profile) => {
-        this.accountProfile.set(profile);
-        this.accountState.set(profile ? 'signed-in' : 'signed-out');
-      },
-      error: (error: unknown) => {
-        this.accountState.set('error');
-        this.accountErrorMessage.set(this.getAccountErrorMessage(error));
-      },
-    });
+    this.currentUser.refreshCurrentUser(this.getDefaultApiOrigin());
   }
 
   private getDefaultApiOrigin(): string {
@@ -158,17 +120,4 @@ export class App {
       : 'https://api.acombs-dev.com';
   }
 
-  private getAccountErrorMessage(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      if (error.status === 401) {
-        return 'Your sign-in session expired. Sign in again.';
-      }
-      if (error.status === 403) {
-        return 'Verify your email address before loading your profile.';
-      }
-      return `Could not load account information (HTTP ${error.status}).`;
-    }
-
-    return error instanceof Error ? error.message : 'Could not load account information.';
-  }
 }

@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import { AuthService } from './auth/auth.service';
-import { App } from './app';
+import { AuthService } from '../auth/auth.service';
+import { ShellComponent } from './shell.component';
 
-describe('App', () => {
+describe('ShellComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
@@ -19,19 +19,19 @@ describe('App', () => {
     authService.signIn.and.resolveTo();
     authService.signOut.and.resolveTo();
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [ShellComponent],
       providers: [provideRouter([]), { provide: AuthService, useValue: authService }],
     }).compileComponents();
   });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(ShellComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
 
   it('should render the workspace shell and theme toggle', () => {
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(ShellComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('mat-sidenav')).toBeTruthy();
@@ -43,7 +43,7 @@ describe('App', () => {
   });
 
   it('should show a sign-in button in the account popover when signed out', () => {
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(ShellComponent);
     fixture.detectChanges();
     const profileControl = fixture.nativeElement.querySelector('.profile-control') as HTMLElement;
 
@@ -73,7 +73,7 @@ describe('App', () => {
         updatedDate: '',
       }),
     );
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(ShellComponent);
     fixture.detectChanges();
     const profileControl = fixture.nativeElement.querySelector('.profile-control') as HTMLElement;
 
@@ -87,7 +87,7 @@ describe('App', () => {
   });
 
   it('should toggle the sidenav from the toolbar hamburger', () => {
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(ShellComponent);
     fixture.detectChanges();
     const toggle = fixture.nativeElement.querySelector('.navigation-toggle') as HTMLButtonElement;
     const startingState = toggle.getAttribute('aria-expanded');
@@ -99,7 +99,7 @@ describe('App', () => {
   });
 
   it('should toggle and persist the selected theme', () => {
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(ShellComponent);
     fixture.detectChanges();
     const toggle = fixture.nativeElement.querySelector('.theme-toggle') as HTMLButtonElement;
     const startingLabel = toggle.getAttribute('aria-label');

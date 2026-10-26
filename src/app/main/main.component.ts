@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { TimeoutError } from 'rxjs';
-import { ApiHealthService } from './api-health.service';
-import { AuthService, UserProfile } from './auth/auth.service';
+import { ApiHealthService } from '../shared/services/api-health.service';
+import { CurrentUserService } from '../shared/services/current-user.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,20 +10,24 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-main',
   imports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
+  templateUrl: './main.component.html',
+  styleUrl: './main.component.scss',
 })
-export class HomeComponent implements OnInit {
+export class MainComponent implements OnInit {
   private readonly apiHealthService = inject(ApiHealthService);
-  private readonly authService = inject(AuthService);
+  private readonly currentUser = inject(CurrentUserService);
 
   protected readonly apiOrigin = signal(this.getDefaultApiOrigin());
   protected readonly connectionState = signal<'idle' | 'checking' | 'connected' | 'error'>('idle');
-  protected readonly authState = signal<'checking' | 'signed-out' | 'signing-in' | 'signed-in' | 'error'>('checking');
-  protected readonly profile = signal<UserProfile | null>(null);
-  protected readonly authMessage = signal('');
+  protected readonly authState = this.currentUser.status;
+  protected readonly profile = this.currentUser.profile;
+  protected readonly authMessage = this.currentUser.errorMessage;
+  protected readonly welcomeMessage = computed(() => {
+    const displayName = this.currentUser.displayName();
+    return displayName ? `Welcome, ${displayName}` : 'Welcome';
+  });
   protected readonly connectionMessage = signal(
     'Enter the API origin and run a read-only health check.',
   );
@@ -44,7 +48,7 @@ export class HomeComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadCurrentProfile();
+    this.currentUser.loadCurrentUser(this.apiOrigin());
   }
 
   protected updateApiOrigin(value: string): void {
@@ -75,45 +79,15 @@ export class HomeComponent implements OnInit {
   }
 
   protected signIn(): void {
-    this.authState.set('signing-in');
-    this.authMessage.set('');
-    void this.authService.signIn().catch((error: unknown) => {
-      this.authState.set('error');
-      this.authMessage.set(this.getAuthErrorMessage(error));
-    });
+    this.currentUser.signIn();
   }
 
   protected signOut(): void {
-    void this.authService
-      .signOut()
-      .then(() => {
-        this.profile.set(null);
-        this.authState.set('signed-out');
-        this.authMessage.set('');
-      })
-      .catch((error: unknown) => {
-        this.authState.set('error');
-        this.authMessage.set(this.getAuthErrorMessage(error));
-      });
+    this.currentUser.signOut();
   }
 
   protected retryProfileLoad(): void {
-    this.loadCurrentProfile();
-  }
-
-  private loadCurrentProfile(): void {
-    this.authState.set('checking');
-    this.authService.currentProfile(this.apiOrigin()).subscribe({
-      next: (profile) => {
-        this.profile.set(profile);
-        this.authState.set(profile ? 'signed-in' : 'signed-out');
-        this.authMessage.set('');
-      },
-      error: (error: unknown) => {
-        this.authState.set('error');
-        this.authMessage.set(this.getAuthErrorMessage(error));
-      },
-    });
+    this.currentUser.refreshCurrentUser(this.apiOrigin());
   }
 
   private getDefaultApiOrigin(): string {
@@ -158,25 +132,4 @@ export class HomeComponent implements OnInit {
     return 'The API health check failed for an unknown reason.';
   }
 
-  private getAuthErrorMessage(error: unknown): string {
-    if (error instanceof TimeoutError) {
-      return 'The user profile request timed out.';
-    }
-    if (error instanceof HttpErrorResponse) {
-      if (error.status === 0) {
-        return 'Could not reach the API. Check HTTPS availability and the API CORS allowlist.';
-      }
-      if (error.status === 401) {
-        return 'Your sign-in session expired. Sign in again to continue.';
-      }
-      if (error.status === 403) {
-        return 'Verify your email address before loading your profile.';
-      }
-      return `Could not load the signed-in profile (HTTP ${error.status}).`;
-    }
-    if (error instanceof Error) {
-      return error.message;
-    }
-    return 'Authentication failed for an unknown reason.';
-  }
 }

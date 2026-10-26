@@ -1,7 +1,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
-import { App } from './app/app';
+import { ShellComponent } from './app/shell/shell.component';
 import './app/auth/cognito-auth.config';
 
-bootstrapApplication(App, appConfig)
+bootstrapApplication(ShellComponent, appConfig)
   .catch((err) => console.error(err));
